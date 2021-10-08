@@ -17,6 +17,9 @@ ensure_network 'infra-public' --driver=overlay --attachable
 ensure_network 'infra-private' --driver=overlay --attachable --internal
 
 case ${command} in
+  lb)
+    ./stack.sh lb infra_lb.yaml $@
+    ;;
   node)
     nodeid=$(docker info -f '{{.Swarm.NodeID}}')
     subcmd=$1
