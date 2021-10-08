@@ -22,6 +22,27 @@ services:
       placement:
         constraints:
           - node.labels.db == true
+  influxdb:
+    image: influxdb:1.7
+    volumes:
+      - ${PWD}/data/influxdb:/var/lib/influxdb
+    networks:
+      - infra-private
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: ${INFRA_GELF_ADDRESS}
+    deploy:
+      resources:
+        limits:
+          cpus: "0.6"
+          memory: 512M
+        reservations:
+          cpus: "0.3"
+          memory: 128M
+      placement:
+        constraints:
+          - node.labels.db == true
 
 networks:
   infra-private:
