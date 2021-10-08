@@ -1,0 +1,65 @@
+version: "3.3"
+
+services:
+  traefik:
+    image: traefik:v2.5.3
+    ports:
+      - "80:80"
+      - "443:443"
+    command:
+      - --providers.docker=true
+      - --providers.docker.constraints=Label(`traefik.public.service`, `yes`)
+      - --providers.docker.exposedbydefault=false
+      - --providers.docker.swarmmode=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.network=infra-public
+      - --entrypoints.http=true
+      - --entrypoints.http.address=:80
+      - --entrypoints.http.http.redirections.entrypoint.to=https
+      - --entrypoints.https=true
+      - --entrypoints.https.address=:443
+      - --entrypoints.https.http.tls.certresolver=le-dns
+      - --entrypoints.https.http.tls.domains[0].main=${INFRA_DOMAIN}
+      - --entrypoints.https.http.tls.domains[0].sans=*.${INFRA_DOMAIN}
+      - --api=true
+      - --certificatesresolvers.le-dns=true
+      - --certificatesresolvers.le-dns.acme.email=${INFRA_EMAIL}
+      - --certificatesresolvers.le-dns.acme.storage=/cert/acme.json
+      - --certificatesresolvers.le-dns.acme.keytype=EC384
+      - --certificatesresolvers.le-dns.acme.dnschallenge.provider=acme-dns
+      - --metrics.prometheus=true
+      - --metrics.prometheus.buckets=0.100000, 0.300000, 1.200000, 5.000000
+      - --metrics.prometheus.addEntryPointsLabels=true
+      - --metrics.prometheus.addrouterslabels=true
+      - --metrics.prometheus.addServicesLabels=true
+    environment:
+      - ACME_DNS_API_BASE=https://auth.acme-dns.io
+      - ACME_DNS_STORAGE_PATH=/cert/acme-dns
+    networks:
+      - infra-public
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PWD}/data/traefik/cert:/cert
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: ${INFRA_GELF_ADDRESS}
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.public.service=yes
+        - traefik.docker.network=infra-public
+        - traefik.docker.lbswarm=true
+        - traefik.http.routers.router0.entrypoints=https
+        - traefik.http.routers.router0.rule=Host(`traefik.${INFRA_DOMAIN}`)
+        - traefik.http.routers.router0.service=api@internal
+        - traefik.http.routers.router0.middlewares=middlewares0
+        - traefik.http.services.router0.loadbalancer.server.port=8080
+        - traefik.http.middlewares.middlewares0.basicauth.users=${INFRA_ADMIN_USER}:${INFRA_ADMIN_HASHED_PASSWORD}
+
+networks:
+  infra-public:
+    external: true
