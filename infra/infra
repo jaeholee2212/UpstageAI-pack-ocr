@@ -20,6 +20,9 @@ case ${command} in
   lb)
     ./stack.sh lb infra_lb.yaml $@
     ;;
+  logs)
+    ./stack.sh logs infra_logs.yaml $@
+    ;;
   node)
     nodeid=$(docker info -f '{{.Swarm.NodeID}}')
     subcmd=$1
