@@ -1,0 +1,28 @@
+version: "3.3"
+
+services:
+  couchdb:
+    image: couchdb:2.3.1
+    volumes:
+      - ${PWD}/data/couchdb:/opt/couchdb/data
+    networks:
+      - infra-private
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: ${INFRA_GELF_ADDRESS}
+    deploy:
+      resources:
+        limits:
+          cpus: "0.3"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+      placement:
+        constraints:
+          - node.labels.db == true
+
+networks:
+  infra-private:
+    external: true
