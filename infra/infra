@@ -37,6 +37,10 @@ case ${command} in
         ;;
     esac
     ;;
+  init)
+    mkdir -p ${PWD}/data/es
+    mkdir -p ${PWD}/data/traefik/cert
+    ;;
   *)
     echo "info node id -- node id"
     ;;
