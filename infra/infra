@@ -25,6 +25,10 @@ case ${command} in
       id)
         echo ${nodeid}
         ;;
+      add-label)
+        docker node update --label-add $@ ${nodeid}
+        echo "node labels: $(docker node inspect --format '{{.Spec.Labels}}' ${nodeid})"
+        ;;
     esac
     ;;
   *)
