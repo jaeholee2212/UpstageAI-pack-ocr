@@ -1,5 +1,8 @@
 #!/bin/bash
 
+command=${1}
+shift
+
 ensure_network() {
   local name=$1
   shift
@@ -12,3 +15,21 @@ ensure_network() {
 
 ensure_network 'infra-public' --driver=overlay --attachable
 ensure_network 'infra-private' --driver=overlay --attachable --internal
+
+case ${command} in
+  node)
+    nodeid=$(docker info -f '{{.Swarm.NodeID}}')
+    subcmd=$1
+    shift
+    case ${subcmd} in
+      id)
+        echo ${nodeid}
+        ;;
+    esac
+    ;;
+  *)
+    echo "info node id -- node id"
+    ;;
+esac
+
+
