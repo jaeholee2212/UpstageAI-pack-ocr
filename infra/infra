@@ -40,6 +40,7 @@ case ${command} in
   init)
     mkdir -p ${PWD}/data/es
     mkdir -p ${PWD}/data/traefik/cert
+    mkdir -p ${PWD}/data/couchdb
     ;;
   *)
     echo "info node id -- node id"
