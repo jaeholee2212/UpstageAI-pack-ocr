@@ -1,0 +1,14 @@
+#!/bin/bash
+
+ensure_network() {
+  local name=$1
+  shift
+  local filtered=$(docker network ls --filter name=$name --format {{.Name}})
+  if [[ $name = $filtered ]]; then
+    return 0
+  fi
+  echo "network: created - $(docker network create $@ $name)"
+}
+
+ensure_network 'infra-public' --driver=overlay --attachable
+ensure_network 'infra-private' --driver=overlay --attachable --internal
