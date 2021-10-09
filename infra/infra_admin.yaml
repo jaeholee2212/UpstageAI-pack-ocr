@@ -3,8 +3,6 @@ version: "3.3"
 networks:
   infra-private:
     external: true
-  infra-public:
-    external: true
 
 services:
   swarmpit:
@@ -16,7 +14,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - infra-private
-      - infra-public
     logging:
       driver: "gelf"
       options:
@@ -34,7 +31,7 @@ services:
           - node.role == manager
       labels:
         - traefik.enable=true
-        - traefik.docker.network=infra-public
+        - traefik.docker.network=infra-private
         - traefik.http.routers.swarmpit.rule=Host(`admin.${INFRA_DOMAIN}`)
         - traefik.http.routers.swarmpit.entrypoints=https
         - traefik.http.services.swarmpit.loadbalancer.server.port=8080
