@@ -81,6 +81,9 @@ case ${command} in
     echo "[bootup]: node configurations"
     ./infra node add-label db=true
 
+    echo "[bootup]: launch stacks"
+    ./infra sup
+
     echo "[bootup]: ok"
     ;;
   shutdown)
