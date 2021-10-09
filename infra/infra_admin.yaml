@@ -1,0 +1,66 @@
+version: "3.3"
+
+networks:
+  default:
+    driver: overlay
+    attachable: true
+    internal: true
+  infra-private:
+    external: true
+  infra-public:
+    external: true
+
+services:
+  swarmpit:
+    image: swarmpit/swarmpit:latest
+    environment:
+      - SWARMPIT_DB=http://db_couchdb:5984
+      - SWARMPIT_INFLUXDB=http://db_influxdb:8086
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - default
+      - infra-private
+      - infra-public
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: ${INFRA_GELF_ADDRESS}
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 1024M
+        reservations:
+          cpus: "0.25"
+          memory: 512M
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=infra-public
+        - traefik.http.routers.swarmpit.rule=Host(`admin.${INFRA_DOMAIN}`)
+        - traefik.http.routers.swarmpit.entrypoints=https
+        - traefik.http.services.swarmpit.loadbalancer.server.port=8080
+        - traefik.public.service=yes
+  agent:
+    image: swarmpit/agent:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - default
+      - infra-private
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: ${INFRA_GELF_ADDRESS}
+    deploy:
+      mode: global
+      resources:
+        limits:
+          cpus: "0.10"
+          memory: 64M
+        reservations:
+          cpus: "0.05"
+          memory: 32M
