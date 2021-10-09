@@ -89,7 +89,7 @@ case ${command} in
 
     echo "[bootup]: ok"
     ;;
-  down)
+  dn|down)
     docker swarm leave --force
     ;;
   sup)
