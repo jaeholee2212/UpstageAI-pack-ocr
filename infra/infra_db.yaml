@@ -47,6 +47,8 @@ services:
     image: postgres:9.6.23-bullseye
     volumes:
       - postgresdb:/var/lib/postgresql/data
+    networks:
+      - infra-private
     environment:
       - POSTGRES_PASSWORD=${INFRA_ADMIN_PASSWORD}
       - POSTGRES_USER=${INFRA_ADMIN_USER}
