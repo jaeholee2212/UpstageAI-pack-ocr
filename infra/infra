@@ -12,9 +12,9 @@ ensure_network() {
   shift
   local filtered=$(docker network ls --filter name=$name --format {{.Name}})
   if [[ $name = $filtered ]]; then
-    return 0
+    echo "[network]: previous network destroyed - $(docker network rm $name)"
   fi
-  echo "network: created - $(docker network create $@ $name)"
+  echo "[network]: created - $(docker network create $@ $name)"
 }
 
 ensure_plugin_installed() {
