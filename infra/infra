@@ -3,6 +3,10 @@
 command=${1}
 shift
 
+# Load `.env` into the current run context since `docker stack` does not
+# respect dot-files unfortunately.
+export $(cat .env) > /dev/null 2>&1;
+
 ensure_network() {
   local name=$1
   shift
@@ -13,8 +17,19 @@ ensure_network() {
   echo "network: created - $(docker network create $@ $name)"
 }
 
-ensure_network 'infra-public' --driver=overlay --attachable
-ensure_network 'infra-private' --driver=overlay --attachable --internal
+ensure_plugin_installed() {
+  local name=$1
+  local filtered=$(docker plugin ls --format {{.Name}} | grep ${name})
+  if [[ $name = $filtered ]]; then
+    return 0
+  fi
+  docker plugin install ${name}
+  if [[ $? ]]; then
+    echo "[plugin]: installed - ${name}"
+  fi
+  echo "[plugin]: failed to install"
+  exit 1
+}
 
 case ${command} in
   lb)
