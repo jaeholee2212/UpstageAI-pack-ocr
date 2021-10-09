@@ -75,7 +75,7 @@ case ${command} in
       && docker plugin set ${weave} WEAVE_PASSWORD=1234 WEAVE_MULTICAST=1 \
       && docker plugin enable ${weave}
     if [[ $? ]]; then
-      echo "[bootup]: plugin launched"
+      echo "[bootup]: plugin(${weave}) launched"
     else
       echo "[bootup]: failed to enable the plugin ${weave}"
       exit 1
@@ -91,6 +91,9 @@ case ${command} in
     mkdir -p ${PWD}/data/couchdb
     mkdir -p ${PWD}/data/influxdb
     echo "[bootup]: ok"
+    ;;
+  shoutdown)
+    docker swarm leave --force
     ;;
   *)
     echo "info node id -- node id"
