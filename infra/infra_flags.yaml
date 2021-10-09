@@ -1,0 +1,28 @@
+version: "3.3"
+
+services:
+  unleash:
+    # This is a forked build to have Apple silicon(linux/arm64) supported.
+    # Please use an official version if you are on other than arm64
+    image: popopome/unleash-server:latest
+    networks:
+      - infra-private
+    environment:
+      DATABASE_URL: "postgres://${INFRA_ADMIN_USER}:${INFRA_ADMIN_PASSWORD}@postgres/postgres"
+      DATABASE_SSL: "false"
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.public.service=yes
+        - traefik.docker.network=infra-private
+        - traefik.docker.lbswarm=true
+        - traefik.http.routers.unleash.entrypoints=https
+        - traefik.http.routers.unleash.rule=Host(`unleash.${INFRA_DOMAIN}`)
+        - traefik.http.services.unleash.loadbalancer.server.port=4242
+
+volumes:
+  flipt:
+
+networks:
+  infra-private:
+    external: true
