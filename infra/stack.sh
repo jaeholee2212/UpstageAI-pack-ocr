@@ -16,11 +16,6 @@ start() {
   docker stack deploy -c ${stack_cfg} ${stack_name}
 }
 
-loadenvs() {
-  local envfile="${1:-.env}"
-  set -a && . $envfile && set +a
-}
-
 ensure_no_network() {
   local name=$1
   shift
