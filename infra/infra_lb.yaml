@@ -37,6 +37,7 @@ services:
       - ACME_DNS_STORAGE_PATH=/cert/acme-dns
     networks:
       - infra-public
+      - infra-private
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - cert:/cert
@@ -65,4 +66,6 @@ volumes:
 
 networks:
   infra-public:
+    external: true
+  infra-private:
     external: true
