@@ -64,7 +64,7 @@ case ${command} in
     mkdir -p ${PWD}/data/couchdb
     mkdir -p ${PWD}/data/influxdb
     ;;
-  bootup)
+  up)
     echo "[bootup]: swarm advertise address - ${INFRA_SWARM_ADVERTISE_ADDR}"
     docker swarm init --advertise-addr=${INFRA_SWARM_ADVERTISE_ADDR}
 
@@ -86,7 +86,7 @@ case ${command} in
 
     echo "[bootup]: ok"
     ;;
-  shutdown)
+  down)
     docker swarm leave --force
     ;;
   sup)
