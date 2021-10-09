@@ -44,6 +44,9 @@ case ${command} in
   admin)
     ./stack.sh admin infra_admin.yaml $@
     ;;
+  flags)
+    ./stack.sh flags infra_flags.yaml $@
+    ;;
   node)
     nodeid=$(docker info -f '{{.Swarm.NodeID}}')
     subcmd=$1
@@ -90,13 +93,13 @@ case ${command} in
     docker swarm leave --force
     ;;
   sup)
-    stacks=(lb logs db admin)
+    stacks=(lb logs db admin flags)
     for stk in ${stacks[@]}; do
       ./stack.sh $stk infra_${stk}.yaml up
     done
     ;;
   sdn)
-    stacks=(admin db logs lb)
+    stacks=(flags admin db logs lb)
     for stk in ${stacks[@]}; do
       ./stack.sh $stk infra_${stk}.yaml down
     done
