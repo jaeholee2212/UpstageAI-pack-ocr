@@ -1,9 +1,5 @@
 version: "3.3"
 
-networks:
-  infra-private:
-    external: true
-
 services:
   elasticsearch:
     image: elasticsearch:7.14.1
@@ -11,7 +7,7 @@ services:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms2g -Xmx2g
     volumes:
-      - ${PWD}/data/es:/usr/share/elasticsearch/data
+      - infra_es:/usr/share/elasticsearch/data
     networks:
       - infra-private
     deploy:
@@ -57,4 +53,7 @@ configs:
 
 volumes:
   infra_es:
-    driver: local
+
+networks:
+  infra-private:
+    external: true
