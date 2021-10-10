@@ -31,10 +31,35 @@ ensure_plugin_installed() {
   exit 1
 }
 
+ensure_docker_image_downloaded() {
+  local name=$1
+  local filtered=$(docker image ls --format "{{.Repository}}:{{.Tag}}" | grep ${name})
+  if [[ $name = $filtered ]]; then
+    return 0
+  fi
+  echo "[image]: downloading - ${name}"
+  docker image pull ${name}
+  if [[ $? ]]; then
+    echo "[image]: downloaded - ${name}"
+    return 0
+  fi
+  echo "[image]: failed to download (${name})"
+  exit 1
+}
+
+download_images() {
+  yaml=$1
+  image_names=$(cat ${yaml} | grep image: | sed -e 's/^ *//g' | cut -d " " -f 2)
+  for img in ${image_names[@]}; do
+    ensure_docker_image_downloaded ${img}
+  done
+}
+
 case ${command} in
   lb|logs|db|admin|flags)
+    yaml=infra_${command}.yaml
+    download_images ${yaml}
     ./stack.sh ${command} ${yaml} $@
-    ;;
    ;;
   node)
     nodeid=$(docker info -f '{{.Swarm.NodeID}}')
