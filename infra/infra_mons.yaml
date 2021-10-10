@@ -1,0 +1,72 @@
+version: "3.3"
+
+networks:
+  default:
+    driver: overlay
+    internal: true
+  infra-private:
+    external: true
+
+services:
+  node-exporter:
+    image: prom/node-exporter:v1.2.2
+    networks:
+      - default
+    environment:
+      - NODE_ID={{.Node.ID}}
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      # - /etc/hostname:/etc/nodename
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.textfile.directory=/etc/node-exporter
+      - --collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)
+      - --no-collector.ipvs
+    deploy:
+      # A node signal collector is going to run on every node.
+      mode: global
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+  prometheus:
+    image: prom/prometheus:v2.30.3
+    networks:
+      - infra-private
+      - default
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention=24h
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yaml
+    volumes:
+      - prometheus:/prometheus
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 2048M
+        reservations:
+          memory: 128M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=infra-public
+        - traefik.http.routers.prometheus.rule=Host(`prometheus.${INFRA_DOMAIN}`)
+        - traefik.http.routers.prometheus.entrypoints=https
+        - traefik.http.services.prometheus.loadbalancer.server.port=9090
+        - traefik.public.service=yes
+
+configs:
+  prometheus_config:
+    file: ${PWD}/conf/prometheus.yaml
+
+volumes:
+  prometheus:
