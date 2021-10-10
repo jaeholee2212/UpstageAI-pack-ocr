@@ -2,9 +2,7 @@ version: "3.3"
 
 services:
   unleash:
-    # This is a forked build to have Apple silicon(linux/arm64) supported.
-    # Please use an official version if you are on other than arm64
-    image: popopome/unleash-server:latest
+    image: ${INFRA_IMAGE_NAME_UNLEASH}
     networks:
       - infra-private
     environment:
