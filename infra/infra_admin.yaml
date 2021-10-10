@@ -1,57 +1,47 @@
 version: "3.3"
 
-networks:
-  infra-private:
-    external: true
-
 services:
-  swarmpit:
-    image: swarmpit/swarmpit:latest
+  agent:
+    image: portainer/agent
     environment:
-      - SWARMPIT_DB=http://tasks.couchdb:5984
-      - SWARMPIT_INFLUXDB=http://tasks.influxdb:8086
+      AGENT_CLUSTER_ADDR: agent
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/volumes:/var/lib/docker/volumes
     networks:
-      - infra-private
-    logging:
-      driver: "gelf"
-      options:
-        gelf-address: ${INFRA_GELF_ADDRESS}
+      - default
     deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: 1024M
-        reservations:
-          cpus: "0.25"
-          memory: 512M
+      mode: global
+      placement:
+        constraints:
+          - node.platform.os == linux
+
+  portainer:
+    image: portainer/portainer
+    command: -H tcp://agent:9001 --tlsskipverify
+    volumes:
+      - portainer:/data
+    networks:
+      - default
+      - infra-private
+    deploy:
       placement:
         constraints:
           - node.role == manager
       labels:
         - traefik.enable=true
         - traefik.docker.network=infra-private
-        - traefik.http.routers.swarmpit.rule=Host(`admin.${INFRA_DOMAIN}`)
-        - traefik.http.routers.swarmpit.entrypoints=https
-        - traefik.http.services.swarmpit.loadbalancer.server.port=8080
+        - traefik.http.routers.portainer.rule=Host(`portainer.${INFRA_DOMAIN}`)
+        - traefik.http.routers.portainer.entrypoints=https
+        - traefik.http.services.portainer.loadbalancer.server.port=9000
         - traefik.public.service=yes
-  agent:
-    image: swarmpit/agent:latest
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - infra-private
-    logging:
-      driver: "gelf"
-      options:
-        gelf-address: ${INFRA_GELF_ADDRESS}
-    deploy:
-      mode: global
-      resources:
-        limits:
-          cpus: "0.10"
-          memory: 64M
-        reservations:
-          cpus: "0.05"
-          memory: 32M
+
+networks:
+  default:
+    attachable: true
+    internal: true
+  infra-private:
+    external: true
+
+volumes:
+  portainer:
