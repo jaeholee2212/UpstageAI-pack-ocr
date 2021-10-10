@@ -88,10 +88,44 @@ services:
           memory: 128M
         reservations:
           memory: 64M
+  grafna:
+    image: grafana/grafana:8.1.7
+    networks:
+      - infra-private
+    environment:
+      - GF_SECURITY_ADMIN_USER=${INFRA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${INFRA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana:/var/lib/grafana
+      - grafana_dashboard:/etc/grafana/dashboards/
+    configs:
+      - source: grafana_prometheus
+        target: /etc/grafana/provisioning/datasources/prometheus.yaml
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=infra-public
+        - traefik.http.routers.grafana.rule=Host(`grafana.${INFRA_DOMAIN}`)
+        - traefik.http.routers.grafana.entrypoints=https
+        - traefik.http.services.grafana.loadbalancer.server.port=3000
+        - traefik.public.service=yes
 
 configs:
   prometheus_config:
     file: ${PWD}/conf/prometheus.yaml
+  grafana_prometheus:
+    file: ${PWD}/conf/grafana_prometheus.yaml
 
 volumes:
   prometheus:
+  grafana:
+  grafana_dashboard:
