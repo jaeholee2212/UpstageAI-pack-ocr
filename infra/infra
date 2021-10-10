@@ -44,6 +44,11 @@ ensure_plugin_installed() {
 
 ensure_docker_image_downloaded() {
   local name=$1
+  local match=$(echo $name | grep -E "\\\$\{.+\}$")
+  if [[ ${match} = ${name} ]]; then
+    name=$(eval "echo \"${name}\"")
+  fi
+
   local filtered=$(docker image ls --format "{{.Repository}}:{{.Tag}}" | grep ${name})
   if [[ $name = $filtered ]]; then
     return 0
