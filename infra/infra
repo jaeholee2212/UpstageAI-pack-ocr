@@ -32,21 +32,10 @@ ensure_plugin_installed() {
 }
 
 case ${command} in
-  lb)
-    ./stack.sh lb infra_lb.yaml $@
+  lb|logs|db|admin|flags)
+    ./stack.sh ${command} ${yaml} $@
     ;;
-  logs)
-    ./stack.sh logs infra_logs.yaml $@
-    ;;
-  db)
-    ./stack.sh db infra_db.yaml $@
-    ;;
-  admin)
-    ./stack.sh admin infra_admin.yaml $@
-    ;;
-  flags)
-    ./stack.sh flags infra_flags.yaml $@
-    ;;
+   ;;
   node)
     nodeid=$(docker info -f '{{.Swarm.NodeID}}')
     subcmd=$1
@@ -95,13 +84,13 @@ case ${command} in
   sup)
     stacks=(lb logs db admin flags)
     for stk in ${stacks[@]}; do
-      ./stack.sh $stk infra_${stk}.yaml up
+      ./infra ${stk} up
     done
     ;;
   sdn)
     stacks=(flags admin db logs lb)
     for stk in ${stacks[@]}; do
-      ./stack.sh $stk infra_${stk}.yaml down
+      ./infra @{stk} down
     done
     ;;
   sre)
