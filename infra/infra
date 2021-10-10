@@ -16,6 +16,8 @@ is_apple_silicon() {
 export $(cat .env) > /dev/null 2>&1;
 if [[ is_apple_silicon ]]; then
   export $(cat .env.arm64) > /dev/null 2>&1;
+else
+  export $(cat .env.amd64) > /dev/null 2>&1;
 fi
 
 ensure_network() {
