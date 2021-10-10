@@ -74,7 +74,7 @@ download_images() {
 }
 
 case ${command} in
-  lb|logs|db|admin|flags|mons)
+  lb|logs|db|admin|flags|mons|registry)
     yaml=infra_${command}.yaml
     download_images ${yaml}
     ./stack.sh ${command} ${yaml} $@
@@ -125,13 +125,13 @@ case ${command} in
     docker swarm leave --force
     ;;
   sup)
-    stacks=(lb logs db admin flags mons)
+    stacks=(lb logs db admin flags mons registry)
     for stk in ${stacks[@]}; do
       ./infra ${stk} up
     done
     ;;
   sdn)
-    stacks=(mons flags admin db logs lb)
+    stacks=(mons flags admin db logs lb registry)
     for stk in ${stacks[@]}; do
       ./infra @{stk} down
     done

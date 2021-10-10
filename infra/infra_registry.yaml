@@ -1,0 +1,23 @@
+version: "3.3"
+
+services:
+  registry:
+    image: registry:2.7.1
+    ports:
+      - published: 5000
+        target: 5000
+        mode: host
+    networks:
+      - infra-private
+    volumes:
+      - registry:/var/lib/registry
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+volumes:
+  registry:
+
+networks:
+  infra-private:
+    external: true
