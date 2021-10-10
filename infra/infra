@@ -3,9 +3,20 @@
 command=${1}
 shift
 
+is_apple_silicon() {
+  chip=$(/Volumes/Macintosh\ HD/usr/sbin/system_profiler SPHardwareDataType | grep "Apple M1" | sed -e 's/^ *//g' | cut -d " " -f 2,3)
+  if [[ chip = "Apple M1" ]]; then
+    return 0
+  fi
+  return 1
+}
+
 # Load `.env` into the current run context since `docker stack` does not
 # respect dot-files unfortunately.
 export $(cat .env) > /dev/null 2>&1;
+if [[ is_apple_silicon ]]; then
+  export $(cat .env.arm64) > /dev/null 2>&1;
+fi
 
 ensure_network() {
   local name=$1
