@@ -1,0 +1,38 @@
+version: "3.3"
+
+services:
+  minio:
+    image: minio/minio:RELEASE.2021-10-10T16-53-30Z
+    environment:
+      - MINIO_ROOT_USER=${INFRA_ADMIN_USER}
+      - MINIO_ROOT_PASSWORD=${INFRA_ADMIN_PASSWORD}
+      - MINIO_REGION_NAME=${INFRA_MINIO_REGION_NAME}
+      - MINIO_BUCKET_NAME=${INFRA_MINIO_BUCKET_NAME}
+    command: server /data --console-address ":${INFRA_MINIO_CONSOLE_ADDRESS}" 
+    networks:
+      - infra-private
+    volumes:
+      - minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=infra-private
+        - traefik.http.routers.minio.rule=Host(`minio.${INFRA_DOMAIN}`)
+        - traefik.http.routers.minio.entrypoints=https
+        - traefik.http.services.minio.loadbalancer.server.port=${INFRA_MINIO_CONSOLE_ADDRESS}
+        - traefik.public.service=yes
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  infra-private:
+    external: true
+
+volumes:
+  minio:
