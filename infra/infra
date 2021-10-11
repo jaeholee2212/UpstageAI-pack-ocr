@@ -1,5 +1,13 @@
 #!/bin/bash
 
+DEBUG=0
+
+# -u: not allow unbound variables
+# -o: pipeline fail if any of commands in the pipeline fail
+set -uo pipefail;
+
+source ./utils/logs.sh
+
 command=${1}
 shift
 
@@ -13,6 +21,7 @@ is_apple_silicon() {
 
 # Load `.env` into the current run context since `docker stack` does not
 # respect dot-files unfortunately.
+log info "Hooking up environment variables"
 export $(cat .env) > /dev/null 2>&1;
 if [[ is_apple_silicon ]]; then
   export $(cat .env.arm64) > /dev/null 2>&1;
