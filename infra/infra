@@ -20,6 +20,9 @@ else
   export $(cat .env.amd64) > /dev/null 2>&1;
 fi
 
+# Generate a hashed password
+INFRA_ADMIN_HASHED_PASSWORD=$(openssl passwd -apr1 ${INFRA_ADMIN_PASSWORD})
+
 ensure_network() {
   local name=$1
   shift
