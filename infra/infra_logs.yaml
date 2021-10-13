@@ -46,6 +46,47 @@ services:
       mode: global
     networks:
       - infra-private
+  snorkel:
+    image: popopome/snorkel
+    networks:
+      - infra-private
+    volumes:
+      - sybil:/sybil
+      - snorkeldb:/root/.local/share/snorkel
+    environment:
+      - SNORKEL_NO_AUTH=true
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=infra-private
+        - traefik.http.routers.snorkel.rule=Host(`snorkel.${INFRA_DOMAIN}`)
+        - traefik.http.routers.snorkel.entrypoints=https
+        - traefik.http.routers.snorkel.middlewares=snorkel
+        - traefik.http.services.snorkel.loadbalancer.server.port=2333
+        - traefik.http.middlewares.snorkel.basicauth.users=${INFRA_ADMIN_USER}:${INFRA_ADMIN_HASHED_PASSWORD}
+        - traefik.public.service=yes
+      placement:
+        constraints:
+          - node.role == manager
+  snorkel-relay:
+    image: popopome/snorkel-relay
+    networks:
+      - infra-private
+    volumes:
+      - sybil:/sybil:ro
+      - snorkeldb:/snorkeldb
+    depends_on:
+      - snorkel
+    command:
+      [
+        "snorkel-relay",
+        "--sybil",
+        "/sybil/snorkel.sybil",
+        "--db",
+        "/snorkeldb",
+        "--token",
+        "__snorkel-relay__",
+      ]
 
 configs:
   logstash_pipeline:
@@ -53,6 +94,8 @@ configs:
 
 volumes:
   infra_es:
+  sybil:
+  snorkeldb:
 
 networks:
   infra-private:
