@@ -57,9 +57,7 @@ services:
         - traefik.http.routers.router0.entrypoints=https
         - traefik.http.routers.router0.rule=Host(`traefik.${INFRA_DOMAIN}`)
         - traefik.http.routers.router0.service=api@internal
-        - traefik.http.routers.router0.middlewares=middlewares0
         - traefik.http.services.router0.loadbalancer.server.port=8080
-        - traefik.http.middlewares.middlewares0.basicauth.users=${INFRA_ADMIN_USER}:${INFRA_ADMIN_HASHED_PASSWORD}
 
 volumes:
   cert:

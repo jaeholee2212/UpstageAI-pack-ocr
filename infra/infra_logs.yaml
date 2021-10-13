@@ -26,9 +26,7 @@ services:
         - traefik.docker.network=infra-private
         - traefik.http.routers.kibana.rule=Host(`kibana.${INFRA_DOMAIN}`)
         - traefik.http.routers.kibana.entrypoints=https
-        - traefik.http.routers.kibana.middlewares=middlewares0
         - traefik.http.services.kibana.loadbalancer.server.port=5601
-        - traefik.http.middlewares.middlewares0.basicauth.users=${INFRA_ADMIN_USER}:${INFRA_ADMIN_HASHED_PASSWORD}
         - traefik.public.service=yes
       placement:
         constraints:
@@ -61,9 +59,7 @@ services:
         - traefik.docker.network=infra-private
         - traefik.http.routers.snorkel.rule=Host(`snorkel.${INFRA_DOMAIN}`)
         - traefik.http.routers.snorkel.entrypoints=https
-        - traefik.http.routers.snorkel.middlewares=snorkel
         - traefik.http.services.snorkel.loadbalancer.server.port=2333
-        - traefik.http.middlewares.snorkel.basicauth.users=${INFRA_ADMIN_USER}:${INFRA_ADMIN_HASHED_PASSWORD}
         - traefik.public.service=yes
       placement:
         constraints:
