@@ -4,7 +4,7 @@ services:
   couchdb:
     image: couchdb:2.3.1
     volumes:
-      - ${PWD}/data/couchdb:/opt/couchdb/data
+      - couchdb:/opt/couchdb/data
     networks:
       - infra-private
     logging:
@@ -25,7 +25,7 @@ services:
   influxdb:
     image: influxdb:1.7
     volumes:
-      - ${PWD}/data/influxdb:/var/lib/influxdb
+      - influxdb:/var/lib/influxdb
     networks:
       - infra-private
     logging:
@@ -58,4 +58,6 @@ networks:
     external: true
 
 volumes:
+  couchdb:
   postgresdb:
+  influxdb:
