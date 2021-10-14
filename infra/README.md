@@ -115,12 +115,36 @@ AWS EC2 머신 한대에 데모 서비스들을 실행시키고 있습니다. �
 | Grafana | [https://grafana.ec2-3-22-209-210.us-east-2.compute.amazonaws.com](https://grafana.ec2-3-22-209-210.us-east-2.compute.amazonaws.com) |
 | Unleash (Feature flagging) | [https://unleash.ec2-3-22-209-210.us-east-2.compute.amazonaws.com](https://unleash.ec2-3-22-209-210.us-east-2.compute.amazonaws.com) |
 | Blob storage | [https://minio.ec2-3-22-209-210.us-east-2.compute.amazonaws.com](https://minio.ec2-3-22-209-210.us-east-2.compute.amazonaws.com) |
-| Ad-hoc data analysis | [https://snorkel.ec2-3-22-209-210.us-east-2.compute.amazonaws.com](https://snorkel.ec2-3-22-209-210.us-east-2.compute.amazonaws.com) |
+| Ad-hoc data analysis | [https://snorkel.ec2-3-22-209-210.us-east-2.compute.amazonaws.com](https://snorkel.ec2-3-22-209-210.us-east-2.compute.amazonaws.com) |입
+
+사이트를 클릭하면 경고문구가 나옵니다. SSL 인증서가 Let's encrypt로 되어있는데 인증기관이 제대로 설정이 안되었나봐요. 일단 진행하시면 됩니다.
+<img src="https://user-images.githubusercontent.com/90643143/137250193-1c4827ab-ac9d-4c67-9e6c-74d8096fd3a0.png" width="320" >
+
 
 # Troubleshootings
 
 ## Q: `/etc/hosts`를 수정했는데 엔드포인트에 접속하지 못합니다.
 원인은 Docker for Mac의 경우 Mac과 Docker를 실행중인 VM에서 네트워크 오류로 발생합니다. 이 경우 Docker에서
 제공하는 proxy서버를 이용해서 Mac에서 해당 VM의 특정 컨테이너에 접속하게 합니다.
+
+### 스텝1 - Docker에게 proxy 관련 설정을 합니다
+```
+cd ~/Library/Group\ Containers/group.com.docker/
+mv settings.json settings.json.backup
+cat settings.json.backup | jq '.["socksProxyPort"]=8888' > settings.json
+```
+### 스텝2 - Docker for Mac을 재시작합니다
+이제 Docker가 proxy 서버를 실행시킵니다.
+
+### 스텝3 - Mac에서 네트워크 proxy를 지정합니다
+`System Preferences` -> `Network` -> `Advanced` -> `Proxies` 탭 에서 아래 그림과 같이 설정합니다.
+![F1D5C125-A26C-4729-B92A-540870045297](https://user-images.githubusercontent.com/90643143/137250739-89e1b0f8-d8f8-4aac-8973-69bc05713e77.png)
+
+한가지 단점은, proxy를 위해서 Docker for Mac이 항상 실행 중이어야 합니다.
+
+소스 - https://github.com/docker/for-mac/issues/2670#issuecomment-372365274
+
+
+
 
 
