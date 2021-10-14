@@ -1,6 +1,10 @@
 # Ocr PoC Infra
+Ocr PoC안의 애플리케이션 서비스들을 위해 인프라 서비스들을 제공합니다. 
 
-Ocr PoC안의 애플리케이션 서비스들을 위해 인프라 서비스들을 제공합니다. 제공되는 서비스들은 아래와 같습니다.
+![image](https://user-images.githubusercontent.com/90643143/137259358-fccdcb3c-091e-409a-9ca0-57261772976f.png)
+
+
+제공되는 서비스들은 아래와 같습니다.
 1. Load balancer
 2. 중앙 로깅 시스템 (A centralized logging system)
 3. 데이터베이스들 (Databases)
