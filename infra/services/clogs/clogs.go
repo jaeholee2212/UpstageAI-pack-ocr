@@ -6,12 +6,20 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/go-logr/stdr"
 	"github.com/urfave/cli/v2"
 )
 
 var (
+	snorkel = NewSnorkel("infra@clogs" /* table name */, "__snorkel-relay__" /* token */).
+		AddIntField("elapsed_micros").
+		AddIntField("req_bytes").
+		AddIntField("http_status").
+		AddStrField("method").
+		AddStrField("content_type")
 	logger = stdr.New(log.New(os.Stdout, "", log.Lshortfile))
 	app    = &cli.App{
 		Name:  "clogs",
@@ -41,15 +49,33 @@ var (
 )
 
 func clog(w http.ResponseWriter, req *http.Request) {
+	stime := time.Now().UnixMicro()
+
 	if req.Method != "POST" {
 		logger.Info("not supported", "method", req.Method)
 		http.Error(w, "not allowed method", http.StatusMethodNotAllowed)
+
+		snorkel.Write(os.Stdout, EventData{
+			"elapsed_micros": time.Now().UnixMicro() - stime,
+			"method":         req.Method,
+			"req_bytes":      0,
+			"http_status":    http.StatusMethodNotAllowed,
+		})
 		return
 	}
 
-	if ctype, ok := req.Header["Content-Type"]; !ok || len(ctype) <= 0 || ctype[0] != "application/json" {
+	ctype, ok := req.Header["Content-Type"]
+	if !ok || len(ctype) <= 0 || ctype[0] != "application/json" {
 		logger.Info("Content-Type should be an application/json")
 		http.Error(w, "only accept an application/json", http.StatusBadRequest)
+
+		snorkel.Write(os.Stdout, EventData{
+			"elapsed_micros": time.Now().UnixMicro() - stime,
+			"method":         req.Method,
+			"req_bytes":      0,
+			"http_status":    http.StatusBadRequest,
+			"content_type":   strings.Join(ctype, ","),
+		})
 		return
 	}
 
@@ -57,12 +83,30 @@ func clog(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		logger.Error(err, "failed to get a body of request")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		snorkel.Write(os.Stdout, EventData{
+			"elapsed_micros": time.Now().UnixMicro() - stime,
+			"method":         req.Method,
+			"req_bytes":      0,
+			"http_status":    http.StatusInternalServerError,
+			"content_type":   strings.Join(ctype, ","),
+		})
 		return
 	}
 
 	// Spit out messages into the stdout so container's log stream receives
 	// the given body string which in turn flies into logstash services.
 	fmt.Fprintf(os.Stdout, "%v\n", string(body))
+
+	if err := snorkel.Write(os.Stdout, EventData{
+		"elapsed_micros": time.Now().UnixMicro() - stime,
+		"method":         req.Method,
+		"req_bytes":      len(body),
+		"http_status":    http.StatusOK,
+		"content_type":   strings.Join(ctype, ","),
+	}); err != nil {
+		fmt.Fprintf(os.Stderr, "snorkel error", err)
+	}
 
 	w.Header().Add("Content-Type", "application/json")
 	fmt.Fprintf(w, `{"ok":true}`)
