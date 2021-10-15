@@ -40,6 +40,11 @@ var (
 )
 
 func clog(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		logger.Info("not supported", "method", req.Method)
+		return
+	}
+
 	fmt.Println("req", *req)
 }
 
