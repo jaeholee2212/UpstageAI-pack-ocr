@@ -88,6 +88,8 @@ services:
     networks:
       - infra-private
     deploy:
+      mode: replicated
+      replicas: 2
       labels:
         - traefik.enable=true
         - traefik.docker.network=infra-private
