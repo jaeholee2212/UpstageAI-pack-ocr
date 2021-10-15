@@ -45,6 +45,11 @@ func clog(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if ctype, ok := req.Header["Content-Type"]; !ok || len(ctype) <= 0 || ctype[0] != "application/json" {
+		logger.Info("Content-Type should be an application/json")
+		return
+	}
+
 	fmt.Println("req", *req)
 }
 
