@@ -105,7 +105,7 @@ func clog(w http.ResponseWriter, req *http.Request) {
 		"http_status":    http.StatusOK,
 		"content_type":   strings.Join(ctype, ","),
 	}); err != nil {
-		fmt.Fprintf(os.Stderr, "snorkel error", err)
+		fmt.Fprintf(os.Stderr, "snorkel error: %v", err)
 	}
 
 	w.Header().Add("Content-Type", "application/json")
