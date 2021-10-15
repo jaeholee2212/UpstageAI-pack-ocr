@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/go-logr/stdr"
@@ -23,6 +25,13 @@ var (
 		Action: func(c *cli.Context) error {
 			port := c.Int("port")
 			logger.Info("clogs", "port", port)
+
+			addr := fmt.Sprintf(":%v", port)
+			if err := http.ListenAndServe(addr, nil); err != nil {
+				logger.Error(err, "ListenAndServe")
+				return err
+			}
+
 			return nil
 		},
 	}
