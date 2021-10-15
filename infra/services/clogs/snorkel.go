@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"reflect"
 )
 
 const (
@@ -12,10 +14,12 @@ const (
 	SetType = 3
 )
 
+type EventData map[string]interface{}
+
 type event struct {
-	Table string                 `json:"table"`
-	Token string                 `json:"token"`
-	Data  map[string]interface{} `json:"data"`
+	Table string    `json:"table"`
+	Token string    `json:"token"`
+	Data  EventData `json:"data"`
 }
 
 type Snorkel struct {
@@ -58,21 +62,21 @@ func (s *Snorkel) Write(writer io.Writer, data map[string]interface{}) error {
 		}
 		switch ftype {
 		case IntType:
-			vv, ok := v.(int)
-			if !ok {
-				return fmt.Errorf("int type expected, %v", vv)
+			intv, err := toInt(v)
+			if err != nil {
+				return fmt.Errorf("int type expected, key=%v, value=%v, %w", k, v, err)
 			}
-			out[k] = v
+			out[k] = intv
 		case StrType:
-			vv, ok := v.(string)
+			_, ok := v.(string)
 			if !ok {
-				return fmt.Errorf("string type expected, %v", vv)
+				return fmt.Errorf("string type expected, key=%v, value=%v", k, v)
 			}
 			out[k] = v
 		case SetType:
-			vv, ok := v.([]string)
+			_, ok := v.([]string)
 			if !ok {
-				return fmt.Errorf("expected an array of string type, but %v", vv)
+				return fmt.Errorf("expected an array of string type, but key=%v, value=%v", k, v)
 			}
 			out[k] = v
 		default:
@@ -104,4 +108,18 @@ func toJson(e event) []byte {
 		panic(err)
 	}
 	return bs
+}
+
+func toInt(v interface{}) (int64, error) {
+	if v == nil {
+		return 0, errors.New("not compatiable")
+	}
+
+	rv := reflect.ValueOf(v)
+	rt := rv.Type()
+	if !rt.ConvertibleTo(reflect.TypeOf(int64(0))) {
+		return 0, errors.New("not compatiable")
+	}
+	value := rv.Convert(reflect.TypeOf(int64(0)))
+	return value.Int(), nil
 }

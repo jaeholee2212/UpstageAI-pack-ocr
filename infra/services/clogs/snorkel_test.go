@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -81,7 +82,7 @@ func TestSnorkelWrite(t *testing.T) {
 			s := NewSnorkel("hello", "__s__")
 			s.AddIntField("bytes")
 
-			badValues := []interface{}{nil, "300", 45.0, true, []interface{}{}}
+			badValues := []interface{}{nil, "300", errors.New(""), true, []interface{}{}}
 			for _, bad := range badValues {
 				t.Run(fmt.Sprintf("bad case: %v", bad), func(t *testing.T) {
 					var b bytes.Buffer
