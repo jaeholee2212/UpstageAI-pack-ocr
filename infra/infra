@@ -82,6 +82,15 @@ download_images() {
   done
 }
 
+is_in_swarm_mode() {
+  local status=$(docker node ls --filter "role=manager" --format {{.Status}})
+  if [[ ${status} = "Ready" ]]; then
+    return 0
+  fi
+
+  return 1
+}
+
 case ${command} in
   storage|lb|logs|db|admin|flags|mons|registry)
     yaml=infra_${command}.yaml
@@ -109,6 +118,10 @@ case ${command} in
     mkdir -p ${PWD}/data/influxdb
     ;;
   up)
+    if is_in_swarm_mode; then 
+      echo "[bootup]: We're already in the swarm mode now. no further actions."
+      exit 0
+    fi
     echo "[bootup]: swarm advertise address - ${INFRA_SWARM_ADVERTISE_ADDR}"
     docker swarm init --advertise-addr=${INFRA_SWARM_ADVERTISE_ADDR}
 
