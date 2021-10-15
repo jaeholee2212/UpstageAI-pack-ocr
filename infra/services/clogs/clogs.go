@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -50,7 +51,15 @@ func clog(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	fmt.Println("req", *req)
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		logger.Error(err, "failed to get a body of request")
+		return
+	}
+
+	// Spit out messages into the stdout so container's log stream receives
+	// the given body string which in turn flies into logstash services.
+	fmt.Fprintf(os.Stdout, "%v\n", string(body))
 }
 
 func main() {
