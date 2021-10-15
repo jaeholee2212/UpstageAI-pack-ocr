@@ -26,6 +26,8 @@ var (
 			port := c.Int("port")
 			logger.Info("clogs", "port", port)
 
+			http.HandleFunc("/clogs/log", clog)
+
 			addr := fmt.Sprintf(":%v", port)
 			if err := http.ListenAndServe(addr, nil); err != nil {
 				logger.Error(err, "ListenAndServe")
@@ -36,6 +38,10 @@ var (
 		},
 	}
 )
+
+func clog(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("req", *req)
+}
 
 func main() {
 	if err := app.Run(os.Args); err != nil {
