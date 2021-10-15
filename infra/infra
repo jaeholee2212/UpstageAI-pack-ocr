@@ -116,14 +116,9 @@ case ${command} in
     ensure_network 'infra-public' --driver=overlay --attachable
     ensure_network 'infra-private' --driver=overlay --attachable --internal
 
-    echo "[bootup]: initialize data/storage folders"
-    mkdir -p ${PWD}/data/es
-    mkdir -p ${PWD}/data/traefik/cert
-    mkdir -p ${PWD}/data/couchdb
-    mkdir -p ${PWD}/data/influxdb
-
     echo "[bootup]: node configurations"
     ./infra node add-label db=true
+    ./infra node add-label ocr.pack=true
 
     echo "[bootup]: launch stacks"
     ./infra sup
