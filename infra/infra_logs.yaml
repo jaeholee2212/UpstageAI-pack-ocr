@@ -83,6 +83,19 @@ services:
         "--token",
         "__snorkel-relay__",
       ]
+  clogs:
+    image: ${INFRA_IMAGE_NAME_CLOGS}
+    networks:
+      - infra-private
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=infra-private
+        - traefik.http.routers.clogs.rule=Path(`/clogs/log`)
+        - traefik.http.routers.clogs.entrypoints=https
+        - traefik.http.services.clogs.loadbalancer.server.port=9977
+        - traefik.public.service=yes
+
 
 configs:
   logstash_pipeline:
