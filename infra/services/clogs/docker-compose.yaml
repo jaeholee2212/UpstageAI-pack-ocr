@@ -1,0 +1,8 @@
+version: "3.3"
+
+services:
+  clogs:
+    image: golang:latest
+    volumes:
+      - ${PWD}:/src
+    command: ["sleep", "10d"]
