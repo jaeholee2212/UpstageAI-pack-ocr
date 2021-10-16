@@ -91,7 +91,8 @@ func (s *Snorkel) Write(writer io.Writer, data map[string]interface{}) error {
 	}
 
 	bs := toJson(evt)
-	if nwritten, err := writer.Write(bs); err != nil {
+	bsln := append(bs, []byte("\n")...)
+	if nwritten, err := writer.Write(bsln); err != nil {
 		return err
 	} else if nwritten != len(bs) {
 		return fmt.Errorf(
@@ -99,6 +100,7 @@ func (s *Snorkel) Write(writer io.Writer, data map[string]interface{}) error {
 			nwritten,
 			len(bs))
 	}
+
 	return nil
 }
 
