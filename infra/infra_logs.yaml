@@ -87,6 +87,10 @@ services:
     image: ${INFRA_IMAGE_NAME_CLOGS}
     networks:
       - infra-private
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: ${INFRA_GELF_ADDRESS}
     deploy:
       mode: replicated
       replicas: 2
