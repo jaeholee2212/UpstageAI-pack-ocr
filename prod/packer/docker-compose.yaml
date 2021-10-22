@@ -1,0 +1,15 @@
+version: "3.3"
+
+services:
+  packer:
+    build: .
+    volumes:
+      - ${PWD}:/src
+    ports:
+      - "7777:8000"
+    networks:
+      - infra-private
+
+networks:
+  infra-private:
+    external: true
