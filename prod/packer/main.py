@@ -35,6 +35,12 @@ def read_item(item_id: str, q: Optional[str] = None):
     if item_id in db:
         return db[item_id]
     db[item_id] = {"id": item_id, "q": q}
+    snorkel.write({
+        "event": "item-created",
+        "path": f"/items/{item_id}",
+        "extras": json.dumps({"item_id": item_id})
+    })
+
     return db[item_id]
 
 
