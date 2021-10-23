@@ -1,5 +1,7 @@
 FROM python
 
+ENV PYTHONPATH "${PYTHONPATH}:/xplat/snorkel-py"
+
 WORKDIR /packer
 RUN apt-get update && apt-get install -y python3-pip iputils-ping iproute2 
 RUN pip install fastapi CouchDB "uvicorn[standard]" autopep8

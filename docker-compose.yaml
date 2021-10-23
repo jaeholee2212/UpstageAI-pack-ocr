@@ -7,6 +7,7 @@ services:
       context: ./prod/packer
     volumes:
       - ${PWD}/prod/packer:/packer
+      - ${PWD}/prod/xplat:/xplat
     ports:
       - "7777:8000"
     networks:
@@ -14,6 +15,10 @@ services:
       - default
     environment:
       - DB_URL=http://couchdb:5984
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
 
 networks:
   infra-private:
