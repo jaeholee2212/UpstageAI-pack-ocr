@@ -2,9 +2,11 @@ version: "3.3"
 
 services:
   packer:
-    build: .
+    build: 
+      dockerfile: Dockerfile.dev
+      context: ./prod/packer
     volumes:
-      - ${PWD}:/src
+      - ${PWD}/prod/packer:/packer
     ports:
       - "7777:8000"
     networks:
