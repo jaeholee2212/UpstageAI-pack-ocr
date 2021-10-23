@@ -26,3 +26,8 @@ def read_item(item_id: str, q: Optional[str] = None):
         return db[item_id]
     db[item_id] = {"id": item_id, "q": q}
     return db[item_id]
+
+
+@app.get("/items")
+def read_item_list():
+    return [item for item in db]
