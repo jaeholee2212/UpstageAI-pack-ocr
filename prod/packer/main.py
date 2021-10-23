@@ -1,9 +1,19 @@
 from typing import Optional
 from fastapi import FastAPI
 import couchdb
+from snorkel import Snorkel
 import os
 
+
 DB_NAME = "packer"
+
+snorkel = Snorkel("packer", "__snorkel-relay__")
+snorkel.add_str_field("event")
+snorkel.add_str_field("path")
+snorkel.add_str_field("error_name")
+snorkel.add_str_field("error")
+snorkel.add_int_field("elapsed")
+snorkel.add_str_field("extras")
 
 
 def connect_db(*, url: str):
