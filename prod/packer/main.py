@@ -21,5 +21,8 @@ def read_root():
 
 
 @app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+def read_item(item_id: str, q: Optional[str] = None):
+    if item_id in db:
+        return db[item_id]
+    db[item_id] = {"id": item_id, "q": q}
+    return db[item_id]
