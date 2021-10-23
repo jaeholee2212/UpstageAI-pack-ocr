@@ -9,7 +9,12 @@ services:
       - "7777:8000"
     networks:
       - infra-private
+      - default
+    environment:
+      - DB_URL=http://couchdb:5984
 
 networks:
   infra-private:
     external: true
+  default:
+    driver: "bridge"
