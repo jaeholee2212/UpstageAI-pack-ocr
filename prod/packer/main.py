@@ -3,6 +3,8 @@ from fastapi import FastAPI
 import couchdb
 from snorkel import Snorkel
 import os
+from time import process_time_ns
+import json
 
 
 DB_NAME = "packer"
@@ -16,6 +18,30 @@ snorkel.add_int_field("elapsed")
 snorkel.add_str_field("extras")
 
 
+class SnorkelMiddleware:
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        stime = process_time_ns()
+        try:
+            await self.app(scope, receive, send)
+            elapsed = process_time_ns() - stime
+            snorkel.write({
+                "event": "measured",
+                "path": scope["path"],
+                "elapsed": elapsed,
+            })
+        except Exception as exc:
+            snorkel.write({
+                "event": "error",
+                "path": scope["path"],
+                "error_name": "general",
+                "error": str(exc),
+            })
+            raise exc from None
+
+
 def connect_db(*, url: str):
     server = couchdb.Server(url)
     return server[DB_NAME] if DB_NAME in server else server.create(DB_NAME)
@@ -23,6 +49,7 @@ def connect_db(*, url: str):
 
 db = connect_db(url=os.environ.get('DB_URL'))
 app = FastAPI()
+app.add_middleware(SnorkelMiddleware)
 
 
 @app.get("/")
