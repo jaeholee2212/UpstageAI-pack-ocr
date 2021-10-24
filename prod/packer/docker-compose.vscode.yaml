@@ -1,0 +1,23 @@
+version: "3.3"
+
+services:
+  couchdb:
+    extends:
+      file: ${PWD}/prod/packer/docker-compose.yaml
+      service: couchdb
+  packer:
+    extends:
+      file: ${PWD}/prod/packer/docker-compose.yaml
+      service: packer
+    build:
+      context: ${PWD}/prod/packer
+    volumes:
+      - ${PWD}/prod/packer:/packer
+      - ${PWD}/prod/xplat:/xplat
+    
+networks:
+  infra-private:
+    external: true
+
+volumes:
+  couchdb:

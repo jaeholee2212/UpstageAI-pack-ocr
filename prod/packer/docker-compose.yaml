@@ -1,0 +1,40 @@
+version: "3.3"
+
+services:
+  packer-couchdb:
+    image: couchdb:2.3.1
+    volumes:
+      - couchdb:/opt/couchdb/data
+    networks:
+      - infra-private
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+  packer:
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    volumes:
+      - ${PWD}:/packer
+      - ${PWD}/../xplat:/xplat
+    ports:
+      - "7777:8000"
+    networks:
+      - infra-private
+      - default
+    environment:
+      - DB_URL=http://packer-couchdb:5984
+    depends_on:
+      - packer-couchdb
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://127.0.0.1:12201"
+
+networks:
+  infra-private:
+    external: true
+
+volumes:
+  couchdb:

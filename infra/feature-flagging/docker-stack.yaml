@@ -1,12 +1,21 @@
 version: "3.3"
 
 services:
+  unleash-postgres:
+    image: postgres:9.6.23-bullseye
+    volumes:
+      - postgresdb:/var/lib/postgresql/data
+    networks:
+      - infra-private
+    environment:
+      - POSTGRES_PASSWORD=${INFRA_ADMIN_PASSWORD}
+      - POSTGRES_USER=${INFRA_ADMIN_USER}
   unleash:
     image: ${INFRA_IMAGE_NAME_UNLEASH}
     networks:
       - infra-private
     environment:
-      DATABASE_URL: "postgres://${INFRA_ADMIN_USER}:${INFRA_ADMIN_PASSWORD}@postgres/postgres"
+      DATABASE_URL: "postgres://${INFRA_ADMIN_USER}:${INFRA_ADMIN_PASSWORD}@unleash-postgres/postgres"
       DATABASE_SSL: "false"
     deploy:
       labels:
@@ -20,6 +29,7 @@ services:
 
 volumes:
   flipt:
+  postgresdb:
 
 networks:
   infra-private:

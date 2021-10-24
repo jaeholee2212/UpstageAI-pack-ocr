@@ -2,7 +2,10 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.202.5/containers/python-3
 {
   "name": "vscode dev workflow",
-  "dockerComposeFile": ["../docker-compose.yaml", "docker-compose.yaml"],
+  "dockerComposeFile": [
+    "../prod/packer/docker-compose.vscode.yaml",
+    "docker-compose.yaml"
+  ],
   "service": "packer",
   "workspaceFolder": "/workspace",
   // Set *default* container specific settings.json values on container create.

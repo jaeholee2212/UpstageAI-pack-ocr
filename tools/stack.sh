@@ -1,18 +1,44 @@
 #!/bin/bash
 
-stack_name=$1
-stack_cfg=$2
-command=$3
+command=$1
+stack_name=$2
+stack_cfg=$3
+
+ensure_docker_image_downloaded() {
+  local name=$1
+  local match=$(echo $name | grep -E "\\\$\{.+\}$")
+  if [[ ${match} = ${name} ]]; then
+    name=$(eval "echo \"${name}\"")
+  fi
+
+  local filtered=$(docker image ls --format "{{.Repository}}:{{.Tag}}" | grep ${name})
+  if [[ $name = $filtered ]]; then
+    return 0
+  fi
+  echo "[image]: downloading - ${name}"
+  docker image pull ${name}
+  if [[ $? ]]; then
+    echo "[image]: downloaded - ${name}"
+    return 0
+  fi
+  echo "[image]: failed to download (${name})"
+  exit 1
+}
+
+download_images_in_yaml() {
+  yaml=$1
+  image_names=$(cat ${yaml} | grep image: | sed -e 's/^ *//g' | cut -d " " -f 2)
+  for img in ${image_names[@]}; do
+    ensure_docker_image_downloaded ${img}
+  done
+}
 
 stop() {
   docker stack rm ${stack_name}
 }
 
 start() {
-  # Sadly, a command 'docker stack' does not respect .env files
-  # like `docker compose`. The following line is to load envs
-  # from a `.env` file
-  export $(cat .env) > /dev/null 2>&1; 
+  download_images_in_yaml ${stack_cfg}
   docker stack deploy -c ${stack_cfg} ${stack_name}
 }
 
@@ -35,16 +61,19 @@ ensure_no_network() {
 
 case $command in
   up)
+    echo "[stack]: starting ${stack_name}... config=${stack_cfg}"
     start
-    echo "${stack_name} is now up"
+    echo "[stack]: ${stack_name} is now up"
     ;;
-  down)
+  dn|down)
     stop
-    echo "${stack_name} is down"
+    echo "[stack]: ${stack_name} is down"
     ;;
   re)
+    echo "[stack]: ${stack_name} is being stopped"
     stop
     ensure_no_network "${1}_default"
+    echo "[stack]: ${stack_name} is starting"
     start
     ;;
   *)
