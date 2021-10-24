@@ -102,10 +102,9 @@ services:
         - traefik.http.services.clogs.loadbalancer.server.port=9977
         - traefik.public.service=yes
 
-
 configs:
   logstash_pipeline:
-    file: ${PWD}/conf/logstash.conf
+    file: ${PWD}/infra/logs/conf/logstash.conf
 
 volumes:
   infra_es:

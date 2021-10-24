@@ -118,9 +118,9 @@ services:
 
 configs:
   prometheus_config:
-    file: ${PWD}/conf/prometheus.yaml
+    file: ${PWD}/infra/monitors/conf/prometheus.yaml
   grafana_prometheus:
-    file: ${PWD}/conf/grafana_prometheus.yaml
+    file: ${PWD}/infra/monitors/conf/grafana_prometheus.yaml
 
 volumes:
   prometheus:
