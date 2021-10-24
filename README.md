@@ -1,4 +1,4 @@
-# Ocr PoC Infra
+# Ocr PoC 
 Ocr PoC안의 애플리케이션 서비스들을 위해 인프라 서비스들을 제공합니다. 
 
 ![image](https://user-images.githubusercontent.com/90643143/137259358-fccdcb3c-091e-409a-9ca0-57261772976f.png)
@@ -31,21 +31,21 @@ Ocr PoC안의 애플리케이션 서비스들을 위해 인프라 서비스들�
 
 ```
 # 시작
-./infra up
+./app up
 
 # 종료
-./infra dn
+./app dn
 
-# 개별 스택 시작
-./infra <STACK SHORT NAME> up
+# 개별 INFRA 스택 시작
+./app infra <STACK SHORT NAME> up
 # 예
-./infra lb up
+./app infra load-balancer up
 
 # 개별 스택 종료
-./infra lb down
+./app infra load-balancer down
 
 # 개별 스택 다시시작
-./infra lb re
+./app infra load-balancer re
 ```
 
 # 서비스 접속하기
