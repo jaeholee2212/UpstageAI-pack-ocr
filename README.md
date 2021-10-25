@@ -80,7 +80,7 @@ Ocr PoC안의 애플리케이션 서비스들을 위해 인프라 서비스들�
 사용자/암호는 모두 `admin`/`12345678`로 통일 되어있습니다. 어떤 서비스는 `admin` 계정 설정을 요구하는데 편하시게 사용하시면 됩니다.
 
 # 환경변수들
-환경 변수들은 여러 파일들로 나뉘어져 있습니다. `infra` 스크립트가 취합해서
+환경 변수들은 여러 파일들로 나뉘어져 있습니다. `app` 스크립트가 취합해서
 시스템에 로드합니다.
 | 이름         | 설명                                               |
 | ------------ | -------------------------------------------------- |
@@ -122,6 +122,7 @@ AWS EC2 머신 한대에 데모 서비스들을 실행시키고 있습니다. �
 | Ad-hoc data analysis | [https://snorkel.ec2-3-22-209-210.us-east-2.compute.amazonaws.com](https://snorkel.ec2-3-22-209-210.us-east-2.compute.amazonaws.com) |입
 
 사이트를 클릭하면 경고문구가 나옵니다. SSL 인증서가 Let's encrypt로 되어있는데 인증기관이 제대로 설정이 안되었나봐요. 일단 진행하시면 됩니다.
+
 <img src="https://user-images.githubusercontent.com/90643143/137250193-1c4827ab-ac9d-4c67-9e6c-74d8096fd3a0.png" width="320" >
 
 
@@ -148,6 +149,8 @@ cat settings.json.backup | jq '.["socksProxyPort"]=8888' > settings.json
 
 소스 - https://github.com/docker/for-mac/issues/2670#issuecomment-372365274
 
+## Q: 컨테이너들이 계속 실패/실행을 반복하면서 작동하지 않습니다
+### 시도1: Docker for Mac의 시스템 리소스 중 메모리를 2gb -> 6gb or 8gb로 변경한다
 
 
 
